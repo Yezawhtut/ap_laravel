@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Requests\storePostRequest;
+use App\Models\Category;
 
 class HomeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -27,7 +32,8 @@ class HomeController extends Controller
      */
     public function create()
     {
-        return view('create');
+        $categories = Category::all();
+        return view('create', compact('categories'));
     }
 
     /**
@@ -38,15 +44,8 @@ class HomeController extends Controller
      */
     public function store(storePostRequest $request)
     {
-        // $validated = $request->validated();
-        // $post = new Post();
-        // $post->name = $request->name;
-        // $post->description = $request->description;
-
-        Post::create([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
+        $validated = $request->validated();
+        Post::create($validated);
 
         // $post->save();
         return redirect('/posts');
@@ -60,7 +59,6 @@ class HomeController extends Controller
      */
     public function show(Post $post)
     {
-        dd($post->categories->name);
         return view('show',compact('post'));
     }
 
@@ -72,7 +70,8 @@ class HomeController extends Controller
      */
     public function edit(Post $post)
     {
-        return view('edit',compact('post'));
+        $categories = Category::all();
+        return view('edit',compact('post', 'categories'));
     }
 
     /**
@@ -84,13 +83,8 @@ class HomeController extends Controller
      */
     public function update(storePostRequest $request, Post $post)
     {
-        // $post->name = $request->name;
-        // $post->description = $request->description;
-        // $post->save();
-        $post->update([
-            'name' => $request->name,
-            'description' => $request->description,
-        ]);
+        $validated = $request->validated();
+        $post->update($validated);
         return redirect('/posts');
     }
 
