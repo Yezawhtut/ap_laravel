@@ -5,7 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Post;
 use Illuminate\Http\Request;
 use App\Http\Requests\storePostRequest;
+use App\Mail\PostCreated;
+use App\Mail\PostStored;
 use App\Models\Category;
+use GuzzleHttp\Psr7\Message;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
@@ -18,10 +23,16 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //$data = Post::all();
-        $data = Post::orderBy('id', 'desc')->get();
+        // $posts = Post::Pluck('name');
+        // dd($posts);
+        // dd(config('aprogrammer.info.third'));
+        // Mail::raw('hello world', function($msg){
+        //     $msg->to('hello@gmail.com')->subject('AP index function');
+        // });
+        $data = Post::where('user_id', auth()->id())->orderBy('id', 'desc')->get();
+        // $request->session()->flash('status', 'Task was successful!');
         return view('home', compact('data'));
     }
 
@@ -45,10 +56,10 @@ class HomeController extends Controller
     public function store(storePostRequest $request)
     {
         $validated = $request->validated();
-        Post::create($validated);
-
+        $post = Post::create($validated + ["user_id"=>Auth::user()->id]);
+        Mail::to('yezaw@gmail.com')->send(new PostCreated());
         // $post->save();
-        return redirect('/posts');
+        return redirect('/posts')->with('status', config('aprogrammer.message.created'));
     }
 
     /**
@@ -59,6 +70,11 @@ class HomeController extends Controller
      */
     public function show(Post $post)
     {
+        // if($post->user_id != auth()->id())
+        // {
+        //     abort(403);
+        // }
+        $this->authorize('view', $post);
         return view('show',compact('post'));
     }
 
@@ -70,6 +86,7 @@ class HomeController extends Controller
      */
     public function edit(Post $post)
     {
+        $this->authorize('view', $post);
         $categories = Category::all();
         return view('edit',compact('post', 'categories'));
     }
@@ -85,7 +102,7 @@ class HomeController extends Controller
     {
         $validated = $request->validated();
         $post->update($validated);
-        return redirect('/posts');
+        return redirect('/posts')->with('status', 'Post is successfully upated!');
     }
 
     /**
@@ -97,6 +114,6 @@ class HomeController extends Controller
     public function destroy(Post $post)
     {
         $post->delete();
-        return redirect('/posts');
+        return redirect('/posts')->with('status', 'Post is successfully deleted!');
     }
 }

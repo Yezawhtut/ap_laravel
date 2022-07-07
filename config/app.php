@@ -1,5 +1,7 @@
 <?php
 
+use App\Providers\AppleServiceProvider;
+
 return [
 
     /*
@@ -176,6 +178,8 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
+        App\Providers\SampleServiceProvider::class,
+        App\Providers\AppleServiceProvider::class,
 
     ],
 

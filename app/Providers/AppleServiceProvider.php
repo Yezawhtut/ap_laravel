@@ -2,23 +2,25 @@
 
 namespace App\Providers;
 
-use App\Test;
+use App\Apple;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class AppleServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Register services.
      *
      * @return void
      */
     public function register()
     {
-        
+        $this->app->bind('apple',function(){
+            return new Apple();
+        });
     }
 
     /**
-     * Bootstrap any application services.
+     * Bootstrap services.
      *
      * @return void
      */
